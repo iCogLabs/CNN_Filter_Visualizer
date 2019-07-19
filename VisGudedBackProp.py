@@ -7,6 +7,7 @@ Created on Fri Jul 19 10:26:38 2019
 # Import the neccessary modules
 import torch
 from torch.nn import ReLU
+from torch.autograd import Variable
 import numpy as np
 import PIL.Image as Image
 import matplotlib.pyplot as plt
@@ -106,7 +107,7 @@ class GuidedBackprop():
             gradients_as_arr (numpy.ndarray): numpy array that contains the gradients
         """
         # First Preprocess the image 
-        input_image = preprocess_image(input_image)
+        input_image = self.preprocess_image(input_image)
         self.model.zero_grad()
         # Forward pass
         x = input_image
