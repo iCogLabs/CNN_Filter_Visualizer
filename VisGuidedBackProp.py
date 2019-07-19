@@ -11,7 +11,7 @@ from torch.autograd import Variable
 import numpy as np
 import PIL.Image as Image
 import matplotlib.pyplot as plt
-
+from torchvision import models
 class GuidedBackprop():
     """
        Produces gradients generated with guided back propagation from the given image
@@ -141,3 +141,12 @@ class GuidedBackprop():
         
         return "Done"
 
+# Example
+
+# original_image = Image.open("./cat128.jpeg").convert('RGB')
+# vgg16 = models.vgg16(pretrained=True)
+# pretrained_model = vgg16
+# # Guided backprop
+# GBP = GuidedBackprop(pretrained_model)
+# # Get gradients
+# GBP.visualize(original_image, 4, 2)
