@@ -3,11 +3,16 @@
 This module contains a convolutional neural network visualization 
 techniques implemented using Guided BackPropagation in PyTorch.
 
-Requierments
+## Requierments
+
 1 - pytorch
+
 2 - numpy
+
 3 - matplotlib
+
 4 - PIL
+
 
 
 # Installation:
@@ -29,6 +34,7 @@ Requierments
 # How to use:
     
 after importing the module into your program
+
 1 - create an object of the FilterVisualizer class by 
     passing a model with "Sequential" layers
 
@@ -51,5 +57,5 @@ after importing the module into your program
 
 
 
-##That's it. If you run this sucessfully you will see the filter activations of the layer you chose.
+## That's it. If you run this sucessfully you will see the filter activations of the layer you chose.
     
