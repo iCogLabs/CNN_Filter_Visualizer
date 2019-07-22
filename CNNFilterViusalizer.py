@@ -12,11 +12,16 @@ import numpy as np
 import PIL.Image as Image
 import matplotlib.pyplot as plt
 from torchvision import models
-class GuidedBackprop():
+
+
+class FilterVisualizer():
     """
        Produces gradients generated with guided back propagation from the given image
     """
     def __init__(self, model):
+        """
+        takes in a model to visualize and initializes variables
+        """
         self.model = model
         self.gradients = None
         self.gradients_to_visualize = None
@@ -57,7 +62,7 @@ class GuidedBackprop():
             self.forward_relu_outputs.append(ten_out)
 
         # Loop through layers, hook up ReLUs
-        for pos, module in self.model.features._modules.items():
+        for _, module in self.model.features._modules.items():
             if isinstance(module, ReLU):
                 module.register_backward_hook(relu_backward_hook_function)
                 module.register_forward_hook(relu_forward_hook_function)
@@ -92,7 +97,34 @@ class GuidedBackprop():
         # Convert to Pytorch variable
         im_as_var = Variable(im_as_ten, requires_grad=True)
         return im_as_var
+    def show_all(self, images, cols = 3, titles = None):
+        """Display a list of images in a single figure with matplotlib.
 
+        Parameters
+        ---------
+        images: List of np.arrays compatible with plt.imshow.
+
+        cols (Default = 1): Number of columns in figure (number of rows is 
+                            set to np.ceil(n_images/float(cols))).
+
+        titles: List of titles corresponding to each image. Must have
+                the same length as titles.
+        """
+        assert((titles is None)or (len(images) == len(titles)))
+        n_images = len(images)
+        if titles is None: titles = ['Filter (%d)' % i for i in range(n_images)]
+        fig = plt.figure()#(constrained_layout=True)
+
+        for n, (image, title) in enumerate(zip(images, titles)):
+            a = fig.add_subplot(np.ceil(n_images/float(cols)), cols, n + 1)
+            if image.ndim == 2:
+                plt.gray()
+            plt.imshow(image)
+            a.set_title(title, fontsize=12)
+
+        fig.set_size_inches(np.array(fig.get_size_inches()) + (cols*1.5, n_images*1.5))
+
+        plt.show()
 
     def visualize(self, input_image, cnn_layer, filter_pos, normalize=True):
         """
@@ -109,8 +141,10 @@ class GuidedBackprop():
         # First Preprocess the image 
         input_image = self.preprocess_image(input_image)
         self.model.zero_grad()
-        # Forward pass
+        self.layer_grads = []
         x = input_image
+
+        # Forward pass        
         for index, layer in enumerate(self.model.features):
             # Forward pass layer by layer
             # x is not used after this point because it is only needed to trigger
@@ -118,28 +152,55 @@ class GuidedBackprop():
             x = layer(x)
             # Only need to forward until the selected layer is reached
             if index == cnn_layer:
-                # (forward hook function triggered)
                 break
-        conv_output = torch.sum(torch.abs(x[0, filter_pos]))
-        # Backward pass
-        conv_output.backward()
-        # Convert Pytorch variable to numpy array
-        # [0] to get rid of the first channel (1,3,224,224)
-        gradients_as_arr = self.gradients.data.numpy()[0]
+                
+                
+        if filter_pos=="All":
+            for idx in range(x.shape[1]):
+                x = input_image
+            for index, layer in enumerate(self.model.features):
+                # Forward pass layer by layer
+                # x is not used after this point because it is only needed to trigger
+                # the forward hook function
+                x = layer(x)
+                # Only need to forward until the selected layer is reached
+                if index == cnn_layer:
+                    # (forward hook function triggered)
+                    break
+                        
+                conv_output = torch.sum(torch.abs(x[0, idx]))
+                self.model.zero_grad()
+                conv_output.backward(retain_graph=True)
+                gradients_as_arr = self.gradients.data.numpy()[0]
+                if normalize:
+                    gradients_as_arr -= gradients_as_arr.min()
+                    gradients_as_arr /= gradients_as_arr.max()
+                    gradients_as_arr = np.uint8(gradients_as_arr * 255)
+                gradients_as_arr = np.transpose(gradients_as_arr, (1, 2, 0))
+                self.layer_grads.append(gradients_as_arr)
+            self.show_all(list(self.layer_grads), len(self.layer_grads))
+#                 layerGrads = self.layer_grads
+#             return layerGrads
+                
+        else:        
+            conv_output = torch.sum(torch.abs(x[0, filter_pos]))
+            # Backward pass
+            conv_output.backward()
+            # Convert Pytorch variable to numpy array
+            # [0] to get rid of the first channel (1,3,224,224)
+            gradients_as_arr = self.gradients.data.numpy()[0]
 
-        if normalize:
-            gradients_as_arr -= gradients_as_arr.min()
-            gradients_as_arr /= gradients_as_arr.max()
-            gradients_as_arr = np.uint8(gradients_as_arr * 255)
-        
-        # save the gradients of the selected filter in a class variable "gradients_to_visualize"
-        # for optional access to the gradients
-        self.gradients_to_visualize = gradients_as_arr
-        
-        # use plt.imshow to plot the gradients
-        plt.imshow(np.transpose(gradients_as_arr, (1, 2, 0)))
-        
-        return "Done"
+            if normalize:
+                gradients_as_arr -= gradients_as_arr.min()
+                gradients_as_arr /= gradients_as_arr.max()
+                gradients_as_arr = np.uint8(gradients_as_arr * 255)
+
+            # save the gradients of the selected filter in a class variable "gradients_to_visualize"
+            # for optional access to the gradients
+            self.gradients_to_visualize = gradients_as_arr
+
+            # use plt.imshow to plot the gradients
+            plt.imshow(np.transpose(gradients_as_arr, (1, 2, 0)))
 
 # Example
 
