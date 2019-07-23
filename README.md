@@ -18,10 +18,15 @@ techniques implemented using Guided BackPropagation in PyTorch.
 # Installation:
 
 ## To manually install from this repository:
+
 1 - first make sure you have the required packages above
+
 2 - clone the repository
+
 3 - Navigate in to the cloned folder
+
 4 - run python setup.py install
+
 
 ## To install using pip:
 ### Run the following:
