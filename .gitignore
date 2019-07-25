@@ -1,7 +1,0 @@
-__pycache__
-.ipynb_checkpoints
-.gitignore
-.vscode
-Visualizing_CNNS.egg-info
-build
-dist
