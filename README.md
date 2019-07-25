@@ -48,7 +48,7 @@ after importing the module into your program
     by passing the appropriate parameters
 
 
-
+```python
     # first create an object of the class by passing your model
     gbp = GuidedBackprop(model=your_model)
 
@@ -60,7 +60,7 @@ after importing the module into your program
                 filter_index=filter_of_the_layer_to_visualize, 
                 normalize=True)
 
-
+```
 
 ## That's it. If you run this sucessfully you will see the filter activations of the layer you chose.
     
