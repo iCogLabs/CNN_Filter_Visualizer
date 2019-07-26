@@ -138,49 +138,64 @@ class FilterVisualizer():
         returns:
             gradients_as_arr (numpy.ndarray): numpy array that contains the gradients
         """
+        
         # First Preprocess the image 
         input_image = self.preprocess_image(input_image)
         self.model.zero_grad()
         self.layer_grads = []
-        x = input_image
-
-        # Forward pass        
-        for index, layer in enumerate(self.model.features):
-            # Forward pass layer by layer
-            # x is not used after this point because it is only needed to trigger
-            # the forward hook function
-            x = layer(x)
-            # Only need to forward until the selected layer is reached
-            if index == cnn_layer:
+        x = input_image.cuda()
+       
+        # Forward pass
+        count = 0
+        for _, (name, module) in enumerate(self.model.named_children()):
+            if name == "classifier":
+                x = x.view(x.size(0), -1)
+            for _, (_, layer) in enumerate(module.named_children()):
+                # Forward pass layer by layer
+                x = layer(x)
+                count += 1
+                if count == 31 and cnn_layer > 31:
+                    x = x.view(x.size(0), -1)
+                if count == cnn_layer:
+                        break
+            if count == cnn_layer:
                 break
                 
+        count = 0  
                 
-        if filter_pos=="All":
+        if filter_pos in ["All", "all"]:
+
             for idx in range(x.shape[1]):
-                x = input_image
-            for index, layer in enumerate(self.model.features):
-                # Forward pass layer by layer
-                # x is not used after this point because it is only needed to trigger
-                # the forward hook function
-                x = layer(x)
-                # Only need to forward until the selected layer is reached
-                if index == cnn_layer:
-                    # (forward hook function triggered)
-                    break
+                x = input_image.cuda()
+                count = 0
+                
+                for _, (name, module) in enumerate(self.model.named_children()):
+                    if name == "classifier":
+                            x = x.view(x.size(0), -1)
+                    for _, (_, layer) in enumerate(module.named_children()):
+                        # Forward pass layer by layer
+                        x = layer(x)
+                        count += 1
                         
+                        if count == cnn_layer:
+                                break
+                    if count == cnn_layer:
+                        break
+                        
+                count = 0  
+                
                 conv_output = torch.sum(torch.abs(x[0, idx]))
                 self.model.zero_grad()
-                conv_output.backward(retain_graph=True)
-                gradients_as_arr = self.gradients.data.numpy()[0]
+#                 conv_output.backward(retain_graph=True)
+                conv_output.backward()
+                gradients_as_arr = self.gradients.cpu().data.numpy()[0]
                 if normalize:
                     gradients_as_arr -= gradients_as_arr.min()
                     gradients_as_arr /= gradients_as_arr.max()
                     gradients_as_arr = np.uint8(gradients_as_arr * 255)
                 gradients_as_arr = np.transpose(gradients_as_arr, (1, 2, 0))
                 self.layer_grads.append(gradients_as_arr)
-            self.show_all(list(self.layer_grads), len(self.layer_grads))
-#                 layerGrads = self.layer_grads
-#             return layerGrads
+            self.show_all(self.layer_grads)
                 
         else:        
             conv_output = torch.sum(torch.abs(x[0, filter_pos]))
@@ -188,7 +203,7 @@ class FilterVisualizer():
             conv_output.backward()
             # Convert Pytorch variable to numpy array
             # [0] to get rid of the first channel (1,3,224,224)
-            gradients_as_arr = self.gradients.data.numpy()[0]
+            gradients_as_arr = self.gradients.cpu().data.numpy()[0]
 
             if normalize:
                 gradients_as_arr -= gradients_as_arr.min()
@@ -201,13 +216,3 @@ class FilterVisualizer():
 
             # use plt.imshow to plot the gradients
             plt.imshow(np.transpose(gradients_as_arr, (1, 2, 0)))
-
-# Example
-
-# original_image = Image.open("./cat128.jpeg").convert('RGB')
-# vgg16 = models.vgg16(pretrained=True)
-# pretrained_model = vgg16
-# # Guided backprop
-# GBP = GuidedBackprop(pretrained_model)
-# # Get gradients
-# GBP.visualize(original_image, 4, 2)

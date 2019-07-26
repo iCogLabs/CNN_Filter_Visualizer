@@ -5,27 +5,20 @@ techniques implemented using Guided BackPropagation in PyTorch.
 
 ## Requierments
 
-1 - pytorch
-
-2 - numpy
-
-3 - matplotlib
-
-4 - PIL
-
+1. pytorch
+2. numpy
+3. matplotlib
+4. PIL
 
 
 # Installation:
 
 ## To manually install from this repository:
 
-1 - first make sure you have the required packages above
-
-2 - clone the repository
-
-3 - Navigate in to the cloned folder
-
-4 - run python setup.py install
+1. first make sure you have the required packages above
+2. clone the repository
+3. Navigate in to the cloned folder
+4. run python setup.py install
 
 
 ## To install using pip:
@@ -40,10 +33,10 @@ techniques implemented using Guided BackPropagation in PyTorch.
     
 after importing the module into your program
 
-1 - create an object of the FilterVisualizer class by 
+1. create an object of the FilterVisualizer class by 
     passing a model with "Sequential" layers
 
-2 - Then using the visualize functions in the same class
+2. Then using the visualize functions in the same class
     you can visualze each fiter in each layer
     by passing the appropriate parameters
 
@@ -62,5 +55,11 @@ after importing the module into your program
 
 ```
 
-## That's it. If you run this sucessfully you will see the filter activations of the layer you chose.
+### That's it. If you run this sucessfully you will see the filter activations of the layer you chose.
+
+You can also checkout the example notebook in this repo to see the activations features of an alexnet model with a picture of a dog.
+
+## Here are some sample outputs from the earlier layer in a vgg model
+![Filter Visualizations](./images/1.png)
+
     
