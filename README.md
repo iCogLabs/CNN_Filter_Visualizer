@@ -3,6 +3,7 @@
 This module contains a convolutional neural network visualization 
 techniques implemented using Guided BackPropagation in PyTorch.
 
+the implementation here is based on the repo from 
 ## Requierments
 
 1. pytorch
@@ -61,5 +62,10 @@ You can also checkout the example notebook in this repo to see the activations f
 
 ## Here are some sample outputs from the earlier layer in a vgg model
 ![Filter Visualizations](./images/1.png)
+
+## Refernece :
+@utkuozbulak pytorch-cnn-visualizations repo
+
+if you want to understand more about the implemtation i recomend that you check out the above repo by @utkuozbulak . It has a lot more detail examples and also some other visualization techniques you can checkout.
 
     

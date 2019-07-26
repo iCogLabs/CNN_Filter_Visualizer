@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 setup(
     name = "Visualizing-CNNS",
     version = "1.0",
-    py_modules = ["CNNFilterVisualizer",],
+    py_modules = ["./srs/CNNFilterVisualizer",],
     packages=setuptools.find_packages(),
     # Metadata
 
