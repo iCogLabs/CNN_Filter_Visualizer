@@ -2,6 +2,9 @@
 
 This module contains a convolutional neural network visualization 
 techniques implemented using Guided BackPropagation in Tensorflow.
+Even if the implementation is in Tensorflow the module inculdes a 
+model convertion class that enables it to support multiple other frameworks, such as, 
+Pytorch, Caffe and Theano.
 
 The implementation here is based on the repo from [here](https://github.com/conan7882/CNN-Visualization)
 ## Requierments
@@ -80,6 +83,6 @@ You can also checkout the example notebook in this repo to see the activations f
 2. @utkuozbulak pytorch-cnn-visualizations [repo](https://github.com/utkuozbulak/pytorch-cnn-visualizations)
 3. @conan7882 [repo](https://github.com/conan7882/CNN-Visualization)
 
-If you want to understand more about the implemtation i recomend that you check out the above references
+If you want to understand more about the implemtation i recomend that you check out the above references.
 
     
